@@ -66,13 +66,17 @@ Setting It Up
 	make tools/makejv3
 	# Double density single sided 40 track boot disk
 	tools/makejv3 dd40s /dev/zero mydisk.jv3
-	# Build boot block (not yet converted to sdasz80)
-	zmac platform-trs80/trs80load.s
-	# Build kernel (edit Makefile, set target then)
+	# Build boot block & build kernel (edit Makefile, set target then)
+	cd platform-trs80
 	make
+	# Format the disk with LS-DOS 6 or TRS-DOS 6 with name FUZIX, no password, 
+	# double density, 1 side, 40 tracks.
+	# A legal version of LS-DOS 6.3.1 can be found on:
+	# http://www.tim-mann.org/misosys.html
+	#
 	# Add pieces to the disk (boot block in sector 0, kernel at end)
-	dd if=zout/trs80load.cim of=mydisk.jv3 bs=1 seek=8704 conv=notrunc
-	dd if=fuzix.bin of=mydisk.jv3 bs=1 seek=142336 conv=notrunc
+	dd if=trs80load.bin of=mydisk.jv3 bs=1 seek=9216 conv=notrunc
+	dd if=fuzix.bin of=mydisk.jv3 bs=1 seek=146432 conv=notrunc
 	# Once we get that far you can also put a filesystem in the lower
 	# blocks
 	#
@@ -91,7 +95,16 @@ To set up for hard disk, create a hard disk with the xtrs tools and
 	#
 	sdltrs -model 4p -emtsafe -disk0 mydisk.jv3 -hard0 hard4-0
 
-
+To run it on real hardware:
+	# copy trs80load.bin and fuzix.bin to an empty formatted floppy.
+	# format a boot floppy as described above.
+	# use a tool like Super Utility 4 to copy the sector of trs80load.bin
+	# to the bootfloppy on track 0, sector 1 (!).
+	# copy all the sectors of fuzix.bin to track 29, sector 0 up to 
+	# track 40, sector 18.
+	# A real harddisk hasn't been testes yet, but the FreHD harddisk emulator does work;
+	# simply copy the hard4-0 image to the SD-card and mount it.
+	
 You will still need a boot floppy at this point but just boot with device
 0 (or hit return). Swap is configured to be on the end of the hard disk
 
